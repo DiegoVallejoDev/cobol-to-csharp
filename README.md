@@ -9,6 +9,12 @@ GnuCOBOL.
 **New here?** [`docs/getting-started.md`](docs/getting-started.md) —
 install, one-command run, and what the output looks like (pass *and* fail).
 
+**Using a coding agent?** Start with [`AGENTS.md`](AGENTS.md) and
+[`docs/agents.md`](docs/agents.md). Shared instructions and reusable skills
+work without Devin; Claude Code has thin project adapters.
+See the [improvement audit](docs/improvement-audit.md) for known limitations
+and prioritized follow-ups.
+
 ## The three phases
 
 | Phase | Where | What |
@@ -33,16 +39,24 @@ quirk list, so translation is mechanical and reviewable.
 ## Run it
 
 ```bash
-# regenerate the answer key from the real COBOL (needs gnucobol3 + BDB)
-tests/parity/run_cobol.sh   2022071800 mainframe/data              tests/parity/golden
+# all local checks; does NOT rewrite goldens
+bash tools/verify.sh
 
 # run all four C# ports and diff every output byte-for-byte
 tests/parity/run_parity.sh  2022071800 mainframe/data              tests/parity/golden
-tests/parity/run_parity.sh  2022071800 tests/parity/synthetic/data tests/parity/synthetic/golden
+tests/parity/run_parity.sh  2022071800 tests/parity/synthetic/data tests/parity/synthetic/golden CBACT04C
+
+# fresh answer key from original COBOL, outside tracked goldens (needs GnuCOBOL)
+scratch="$(mktemp -d)"
+tests/parity/run_cobol.sh 2022071800 mainframe/data "$scratch/golden"
+tests/parity/run_parity.sh 2022071800 mainframe/data "$scratch/golden"
 ```
 
 Expected output: every artifact `identical`. TRANSACT records compare
 with the two wall-clock timestamp fields masked and format-checked.
+Both runners accept optional program names after the first three arguments;
+without them all four programs are required. Missing goldens and failed
+program exits fail the check. The synthetic goldens cover only CBACT04C.
 
 The synthetic set (`tests/parity/synthetic/gen_data.py`) exercises what
 the shipped sample can't: nonzero interest, multi-category accounts,
@@ -56,6 +70,11 @@ Manual invocation mirrors JCL:
 dotnet run --project src/CardDemo.Batch -- CBACT04C <PARM> <data-dir>
 ```
 
+Use a disposable **staged** data directory; this program rewrites accounts.
+See the getting-started guide for staging. The oracle is GnuCOBOL with local
+stubs; tested byte parity is not a claim of full IBM runtime/VSAM/EBCDIC
+compatibility or equivalence for every possible input.
+
 ## Layout
 
 ```
@@ -66,4 +85,8 @@ src/Legacy.Runtime   owned COBOL runtime primitives (not a converter black box)
 src/CardDemo.Batch   one class per program, paragraph names preserved
 tools/gnucobol       VSAM loaders, JCLDRV PARM emulator, COBDATFT + CEE3ABD stubs
 tests/parity         golden-master harness + checked-in goldens + synthetic generator
+AGENTS.md / CLAUDE.md shared agent rules + Claude import
+.agents/skills       analysis, translation and parity procedures
+.claude/skills       thin Claude discovery adapters
+tools/verify.sh      provider-independent acceptance gate
 ```

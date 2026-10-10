@@ -6,9 +6,10 @@
   and are compared structurally (format YYYY-MM-DD-HH.MM.SS.ff0000) instead.
 - sysout / OUTFILE / ARRYFILE / VBRCFILE / acctdata: exact byte compare.
 
-Usage: compare.py <run-dir> <golden-dir>
+Usage: compare.py <run-dir> <golden-dir> [--program cbact04c]
 The golden dir holds one subdirectory per program (cbact01c, cbact02c, ...).
 """
+import argparse
 import re
 import sys
 from pathlib import Path
@@ -63,7 +64,8 @@ def compare_exact(actual: Path, golden: Path, label: str) -> bool:
     n = min(len(a), len(g))
     first = next((i for i in range(n) if a[i] != g[i]), n)
     print(f"    first differing byte: {first}")
-    la = a.split(b"\n"); lg = g.split(b"\n")
+    la = a.split(b"\n")
+    lg = g.split(b"\n")
     for i, (x, y) in enumerate(zip(la, lg)):
         if x != y:
             print(f"    line {i}: {x[:80]!r} != {y[:80]!r}")
@@ -72,20 +74,35 @@ def compare_exact(actual: Path, golden: Path, label: str) -> bool:
 
 
 def main() -> int:
-    run_dir, golden_dir = Path(sys.argv[1]), Path(sys.argv[2])
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("run_dir", type=Path)
+    parser.add_argument("golden_dir", type=Path)
+    parser.add_argument(
+        "--program", action="append", choices=EXPECTED,
+        help="compare only this program (repeatable); default: all four programs",
+    )
+    args = parser.parse_args()
+    run_dir, golden_dir = args.run_dir, args.golden_dir
     ok = True
-    for prog, outputs in EXPECTED.items():
+    for prog in args.program or EXPECTED:
+        outputs = EXPECTED[prog]
         gdir = golden_dir / prog
-        if not gdir.is_dir():
-            continue
         print(f"{prog}:")
+        if not gdir.is_dir():
+            print("  golden directory: MISSING")
+            ok = False
+            continue
         for name in outputs:
             actual = run_dir / prog / name
-            if not actual.exists():
+            if not actual.is_file():
                 print(f"  {name}: MISSING in run dir")
                 ok = False
                 continue
             golden = gdir / (name if name != "acctdata" else "acctdata.bin")
+            if not golden.is_file():
+                print(f"  {name}: MISSING in golden dir")
+                ok = False
+                continue
             if name == "TRANSACT":
                 ok &= compare_transact(actual, golden)
             else:
