@@ -158,7 +158,7 @@ public sealed class SequentialFileWriter : IDisposable
 
 /// <summary>
 /// RECORD VARYING writer — each record is preceded by GnuCOBOL's 4-byte
-/// RDW: 2-byte little-endian length + 2 reserved zero bytes.
+/// RDW: 2-byte big-endian length + 2 reserved zero bytes.
 /// </summary>
 public sealed class VariableLengthFileWriter : IDisposable
 {
