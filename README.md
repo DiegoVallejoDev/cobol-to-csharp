@@ -6,6 +6,9 @@ suite, Apache-2.0, vendored under `mainframe/`) ported to C# and
 validated **byte-for-byte** against the original running under
 GnuCOBOL.
 
+**New here?** [`docs/getting-started.md`](docs/getting-started.md) —
+install, one-command run, and what the output looks like (pass *and* fail).
+
 ## The three phases
 
 | Phase | Where | What |
