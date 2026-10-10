@@ -1,0 +1,26 @@
+# https://docs.devin.ai/onboard-devin/environment-yaml
+# Toolchain for the COBOL->C# pilot: GnuCOBOL (goldens) + .NET 8 (ports/tests).
+initialize: |
+  sudo apt-get update -qq && sudo apt-get install -y -qq gnucobol3
+  curl -LsSf https://dot.net/v1/dotnet-install.sh -o /tmp/dotnet-install.sh
+  bash /tmp/dotnet-install.sh --channel 8.0 --install-dir "$HOME/.dotnet"
+  echo "PATH=$HOME/.dotnet:$PATH" >> $ENVRC
+  mkdir -p /tmp/cob /tmp/vsam
+maintenance: |
+  $HOME/.dotnet/dotnet restore CobolModernization.sln
+knowledge:
+  - name: test
+    contents: |
+      # unit tests
+      $HOME/.dotnet/dotnet test
+      # golden-master parity vs GnuCOBOL
+      tests/parity/run_parity.sh 2022071800 mainframe/data tests/parity/golden
+      # regenerate goldens from real COBOL
+      tests/parity/run_cobol.sh 2022071800 mainframe/data tests/parity/golden
+  - name: build
+    contents: |
+      # $HOME/.dotnet/dotnet build
+  - name: run
+    contents: |
+      # JCL-style: carddemo-batch <PROGRAM> <PARM> <data-dir>
+      $HOME/.dotnet/dotnet run --project src/CardDemo.Batch -- CBACT04C 2022071800 /tmp/vsam
