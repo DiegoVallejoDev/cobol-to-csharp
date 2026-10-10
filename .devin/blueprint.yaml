@@ -11,16 +11,16 @@ maintenance: |
 knowledge:
   - name: test
     contents: |
-      # unit tests
-      $HOME/.dotnet/dotnet test
-      # golden-master parity vs GnuCOBOL
-      tests/parity/run_parity.sh 2022071800 mainframe/data tests/parity/golden
-      # regenerate goldens from real COBOL
-      tests/parity/run_cobol.sh 2022071800 mainframe/data tests/parity/golden
+      # Shared gate: instructions/skills in AGENTS.md and .agents/skills/.
+      # Never regenerates tracked goldens.
+      export PATH="$HOME/.dotnet:$PATH"
+      bash tools/verify.sh
   - name: build
     contents: |
       # $HOME/.dotnet/dotnet build
   - name: run
     contents: |
-      # JCL-style: carddemo-batch <PROGRAM> <PARM> <data-dir>
-      $HOME/.dotnet/dotnet run --project src/CardDemo.Batch -- CBACT04C 2022071800 /tmp/vsam
+      # Disposable flat records, not GnuCOBOL's indexed database files.
+      data_dir="$(mktemp -d)"
+      python3 tests/parity/stage.py mainframe/data "$data_dir"
+      $HOME/.dotnet/dotnet run --project src/CardDemo.Batch -- CBACT04C 2022071800 "$data_dir"
