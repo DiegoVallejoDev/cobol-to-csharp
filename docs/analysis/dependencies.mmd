@@ -1,0 +1,47 @@
+flowchart LR
+    subgraph Programs
+        P1[CBACT01C\nacct reader/reformatter]
+        P2[CBACT02C\ncard reader]
+        P3[CBACT03C\nxref reader]
+        P4[CBACT04C\ninterest calc]
+    end
+    subgraph Copybooks
+        C1[CVACT01Y\nACCOUNT-RECORD 300B]
+        C2[CVACT02Y\nCARD-RECORD 150B]
+        C3[CVACT03Y\nCARD-XREF-RECORD 50B]
+        C4[CODATECN\ndate conv record]
+        C5[CVTRA01Y\nTRAN-CAT-BAL 50B]
+        C6[CVTRA02Y\nDIS-GROUP 50B]
+        C7[CVTRA05Y\nTRAN-RECORD 350B]
+    end
+    subgraph Files
+        F1[(ACCTFILE\nacct master)]
+        F2[(CARDFILE\ncard master)]
+        F3[(XREFFILE\ncard→acct xref)]
+        F4[(TCATBALF\nper-cat balances)]
+        F5[(DISCGRP\ninterest rates)]
+        F6[(TRANSACT\noutput GDG)]
+        F7[(OUTFILE/ARRY/VBRC)]
+    end
+    subgraph External
+        X1[COBDATFT\nHLASM date util]
+        X2[CEE3ABD\nLE abend]
+    end
+    P1 -->|reads seq| F1
+    P1 -->|writes| F7
+    P1 --> C1 & C4 & X1 & X2
+    P2 -->|reads seq| F2
+    P2 --> C2 & X2
+    P3 -->|reads seq| F3
+    P3 --> C3 & X2
+    P4 -->|reads seq| F4
+    P4 -->|reads keyed| F3 & F5
+    P4 -->|read+rewrite| F1
+    P4 -->|writes| F6
+    P4 --> C1 & C3 & C5 & C6 & C7 & X2
+    C1 -.record layout.- F1
+    C2 -.record layout.- F2
+    C3 -.record layout.- F3
+    C5 -.record layout.- F4
+    C6 -.record layout.- F5
+    C7 -.record layout.- F6

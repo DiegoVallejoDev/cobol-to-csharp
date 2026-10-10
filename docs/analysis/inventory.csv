@@ -1,0 +1,5 @@
+program,jcl,loc,copybooks,files_in,files_out,external_calls,complexity,notes
+CBACT01C,READACCT.jcl,430,"CVACT01Y, CODATECN",ACCTFILE,"OUTFILE, ARRYFILE, VBRCFILE","COBDATFT (HLASM), CEE3ABD (LE)",medium,"COMP-3 output fields; OCCURS array; variable-length records; assembler CALL"
+CBACT02C,READCARD.jcl,178,CVACT02Y,CARDFILE,-,CEE3ABD (LE),low,read+display only
+CBACT03C,READXREF.jcl,178,CVACT03Y,XREFFILE,-,CEE3ABD (LE),low,read+display only; twin of CBACT02C
+CBACT04C,INTCALC.jcl,652,"CVTRA01Y, CVACT03Y, CVTRA02Y, CVACT01Y, CVTRA05Y","TCATBALF, XREFFILE, ACCTFILE, DISCGRP","TRANSACT, ACCTFILE (rewrite)",CEE3ABD (LE),high,"JCL PARM; keyed+sequential access; interest math; dead ELSE branch (last acct never flushed); COMPUTE-FEES stub"
