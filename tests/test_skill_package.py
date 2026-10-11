@@ -95,6 +95,12 @@ class SkillPackageTests(unittest.TestCase):
             check_links(self, installed.rglob("*.md"), installed)
             for relative, contents in source_files.items():
                 self.assertEqual(contents, (installed / relative).read_bytes())
+            for reference in (
+                "analysis.md", "translation.md", "verification.md",
+                "compatibility.md", "gnucobol-semantics.md",
+                "harness-patterns.md", "worked-example.md",
+            ):
+                self.assertTrue((installed / "references" / reference).is_file())
             self.assertFalse((project / "AGENTS.md").exists())
             self.assertFalse((project / "tools").exists())
             self.assertFalse((project / "src").exists())
@@ -106,6 +112,13 @@ class SkillPackageTests(unittest.TestCase):
         self.assertIsNone(template["source"]["dialect"])
         self.assertIsNone(template["source"]["encoding"])
         self.assertIsNone(template["target"]["format"])
+        self.assertIsNone(template["workspace"]["output_root"])
+        for key in ("original_hashes", "post_run_hashes"):
+            self.assertEqual([], template["workspace"][key])
+        for key in ("source_variant", "compiler_version"):
+            self.assertIsNone(template["oracle"][key])
+        for key in ("compiler_options", "patches"):
+            self.assertEqual([], template["oracle"][key])
         record = template["records"][0]
         field = record["fields"][0]
         for key in ("length_bytes", "source_reference"):
@@ -118,6 +131,21 @@ class SkillPackageTests(unittest.TestCase):
         self.assertIn("status_branches", template["files"][0])
         self.assertIn("mutates_input", template["files"][0])
         self.assertIn("target_file_and_method", template["paragraphs"][0])
+        input_contract = template["files"][0]["input_contract"]
+        for key in (
+            "path", "encoding", "physical_format", "size_bytes",
+            "observed_record_length_bytes", "declared_record_length_bytes",
+            "length_check",
+        ):
+            self.assertIsNone(input_contract[key])
+        conversion = input_contract["conversion"]
+        for key in ("required", "output_path", "evidence"):
+            self.assertIsNone(conversion[key])
+        for key in ("text_ranges", "preserved_ranges"):
+            self.assertEqual([], conversion[key])
+        output_contract = template["files"][0]["output_contract"]
+        for key in ("framing", "newline_bytes", "close_behavior", "oracle_case"):
+            self.assertIsNone(output_contract[key])
         for key in ("dependencies", "quirks", "numeric_rules", "unresolved"):
             self.assertEqual([], template[key])
 
@@ -126,6 +154,10 @@ class SkillPackageTests(unittest.TestCase):
         for required in (
             "unverified", "blocked", "failed", "Exit code", "Oracle provenance",
             "input isolation", "Missing artifacts", "masks", "Gaps",
+            "Requested total = verified + unverified + blocked + failed",
+            "ALL PASS", "Source variant", "patched-source",
+            "time/output bounds", "output root", "before/after hash",
+            "Undefined-data and expected-mismatch",
         ):
             self.assertIn(required, report)
 
@@ -136,11 +168,66 @@ class SkillPackageTests(unittest.TestCase):
         for resource in (
             "references/analysis.md", "references/translation.md",
             "references/verification.md", "references/compatibility.md",
+            "references/gnucobol-semantics.md",
+            "references/harness-patterns.md", "references/worked-example.md",
             "assets/program-analysis.md", "assets/migration-map.json",
             "assets/validation-report.md",
         ):
             self.assertIn(resource, text)
         self.assertIn("unverified translation", text)
+
+    def test_source_preservation_and_preflight_contracts(self):
+        skill = (SKILL / "SKILL.md").read_text(encoding="utf-8").lower()
+        for term in (
+            "one output root", "resolve paths and symlinks",
+            "inside an input tree", "before/after",
+            "requested inventory", "never create a converted",
+        ):
+            self.assertIn(term, skill)
+        analysis = (SKILL / "assets/program-analysis.md").read_text(
+            encoding="utf-8"
+        ).lower()
+        for term in (
+            "input encoding", "declared record length", "physical framing",
+            "preserved binary/packed bytes", "hash manifest",
+            "authorized scratch patches",
+        ):
+            self.assertIn(term, analysis)
+
+    def test_runtime_notes_scope_their_observations(self):
+        text = (SKILL / "references/gnucobol-semantics.md").read_text(
+            encoding="utf-8"
+        )
+        for term in (
+            "not universal rules", "3.1.2.0", "LINE SEQUENTIAL",
+            "AFTER ADVANCING 2", "floating", "IS NUMERIC",
+            "168-byte remainder", "04", "unmodified-source parity",
+        ):
+            self.assertIn(term, text)
+
+    def test_harness_has_bounded_execution_and_complete_inventory(self):
+        text = (SKILL / "references/harness-patterns.md").read_text(
+            encoding="utf-8"
+        )
+        for term in (
+            "printf '%b'", "printf '%s'", "process group", "KILL",
+            "DOTNET_ROOT", "stderr", "artifact", "zero-based", "undefined",
+            "verified for named cases", "unverified", "blocked", "failed",
+            "Verified for named cases: 18; Unverified: 1; Blocked: 5; Failed: 0",
+            "every required case is verified",
+        ):
+            self.assertIn(term, text)
+
+    def test_worked_example_distinguishes_patched_and_original_evidence(self):
+        text = (SKILL / "references/worked-example.md").read_text(
+            encoding="utf-8"
+        )
+        for term in (
+            "documentation example", "synthetic-account", "170 bytes",
+            "119 bytes", "no masks", "syntax-adapted", "blocked",
+            "No course dataset or full-corpus run was reproduced",
+        ):
+            self.assertIn(term, text)
 
     def test_demo_and_runtime_are_not_present(self):
         for relative in (
@@ -150,7 +237,9 @@ class SkillPackageTests(unittest.TestCase):
         ):
             self.assertFalse((ROOT / relative).exists(), relative)
         for pattern in (
-            "*.cbl", "*.cpy", "*.cs", "*.csx", "*.csproj", "*.sln", "*.bin",
+            "*.cbl", "*.cob", "*.cobol", "*.cpy", "*.jcl",
+            "*.cs", "*.csx", "*.csproj", "*.sln",
+            "*.bin", "*.dll", "*.exe", "*.dat",
         ):
             self.assertEqual([], list(SKILL.rglob(pattern)), pattern)
 

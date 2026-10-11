@@ -21,9 +21,12 @@ Honor that project's instructions and the user's requested scope.
    target .NET version, and output paths. Infer from configuration where
    possible; ask only for material missing decisions. Do not silently pick a
    mainframe dialect, encoding, database, or CICS replacement.
+   Inspect data encoding by field and check declared versus physical record
+   lengths before converting input or trusting a map.
 3. Clarify target format: ordinary `.cs` source in a .NET project by default;
    `.csx` only with an explicit compatible script host. Reuse an existing
-   target structure; otherwise propose a small program-oriented structure.
+   target structure only when explicitly requested; otherwise propose a small
+   program-oriented structure below the output root.
 4. Select analysis, translation, verification, or full migration. Work on one
    dependency cluster at a time. Reuse **source-verified** existing analysis;
    a translation request with missing contracts starts with analysis.
@@ -31,15 +34,32 @@ Honor that project's instructions and the user's requested scope.
    If unavailable, record the gap and proceed only as **unverified translation**
    where possible. Do not fabricate expected output or equivalence.
 
-Keep original sources and production data unchanged. Do not install tools,
-run writes against external systems, or expose secrets without the required
-authorization. Read only scoped project files; do not upload private code or
-data to third-party services.
+## Keep all generated artifacts under one output root
+
+Choose a dedicated new folder, for example `migration-output/`, outside the
+original source/data trees and the installed skill. Resolve paths and symlinks
+before writing; reject an output root that contains or is inside an input tree.
+Put **all generated artifacts** there: docs/maps, C#/tests, converted inputs,
+patched oracle copies, binaries, build files, per-case runs, harness and run
+guide. Do not scatter files beside the originals or overwrite the project's
+README. Reuse an existing target only when explicitly requested; do not overwrite
+previous migration runs without agreement.
+
+Hash the scoped original source/copybooks/JCL and input files before and after.
+Run both implementations against independent disposable copies below the output
+root. Never create a converted `ACCTREC` in the original data directory.
+
+Keep original sources and data unchanged, including non-production fixtures.
+Do not install tools, run writes against external systems, or expose secrets
+without the required authorization. Read only scoped project files; do not
+upload private code or data to third-party services.
 
 ## Phase 1 — document before translating
 
 Read [the analysis procedure](references/analysis.md) and consult
 [compatibility guidance](references/compatibility.md) for the source features.
+For GnuCOBOL, also read [scoped runtime observations](references/gnucobol-semantics.md);
+these do not override the actual dialect, options, or oracle.
 
 Produce per-program Markdown and Mermaid diagrams, deterministic field maps,
 file/dependency/error contracts, and an evidence-based test plan. Use
@@ -47,9 +67,11 @@ file/dependency/error contracts, and an evidence-based test plan. Use
 [the map template](assets/migration-map.json) as starting shapes, not facts.
 Mark unknowns explicitly. Do not invent offsets or available external services.
 
-**Gate:** source dependencies, control flow, data layouts, numeric rules, and
-observable outputs are documented. Any unresolved contract needed for a
-paragraph blocks verified translation of that paragraph, not unrelated work.
+**Gate:** source dependencies, control flow, data layouts, input encoding,
+declared-versus-physical length checks, numeric rules, and observable outputs
+are documented. Compile defects and undefined-data cases remain in the inventory.
+Any unresolved contract needed for a paragraph blocks verified translation of
+that paragraph, not unrelated work.
 For analysis-only requests, stop here and hand off the documents.
 
 ## Phase 2 — translate with continuous parity checks
@@ -60,7 +82,8 @@ behavior and known quirks. Use shared project-local primitives only where
 required; do not force a prebuilt runtime or vendor framework.
 
 Start original-versus-C# comparison now, using
-[the verification procedure](references/verification.md). Build/test each
+[the verification procedure](references/verification.md) and
+[safe harness patterns](references/harness-patterns.md). Build/test each
 coherent increment when tools exist. Keep source references, implementation
 status, and mismatches with the migration artifacts.
 
@@ -89,9 +112,14 @@ Use [the validation-report template](assets/validation-report.md). Include:
 - Paragraph-to-C# traceability and remaining external adapters.
 - Exact commands, exit codes, datasets, oracle provenance, and comparisons.
 - Explicit masks and reasons, assumptions, unresolved questions, and gaps.
+- Before/after original-file hashes, oracle source variant and any scratch-only
+  patches, plus verdict counts covering the entire requested inventory.
 - Overall result: **verified for named cases**, **unverified**, **blocked**,
   or **failed**. Never claim arbitrary-COBOL or production-mainframe parity.
 
 For a verification-only request, do not rewrite the application unless asked;
 diagnose differences and propose focused changes. Business-rule corrections
 must be authorized separately from compatibility translation.
+
+For a documentation-only end-to-end example without a bundled application,
+see [the CBL0001 walkthrough](references/worked-example.md).
