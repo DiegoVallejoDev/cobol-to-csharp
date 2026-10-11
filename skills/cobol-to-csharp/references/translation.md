@@ -2,7 +2,9 @@
 
 ## Shape the target, not a demo
 
-Use the user's target workspace and conventions. For a new batch target,
+Use the dedicated output root and the user's target conventions; keep C#,
+tests, docs, build/oracle copies and runs inside it. Editing an existing target
+requires an explicit request. For a new batch target,
 prefer a small runnable .NET project, one program-oriented class/file per
 COBOL program, explicit input/job contracts, and a test project. Generate
 `.cs` files; generate `.csx` only for a specified script host and dependency
@@ -22,6 +24,9 @@ behavior explicitly; never use silent success/no-op placeholders.
    Do not treat COBOL INITIALIZE as a universal memset or MOVE 0.
 3. Use mapped byte ranges for physical records. Keep byte layouts distinct from
    business models so string trimming or serialization cannot change bytes.
+   Separate data conversion from record reads. Do not repair a mis-declared FD
+   or switch file organization to make a case pass. Preserve observed framing,
+   WRITE/ADVANCING and CLOSE bytes, not C# WriteLine defaults.
 4. Implement financial arithmetic using exact representations within the
    required range. Preserve receiving-field scale, truncation, ROUNDED, and
    ON SIZE ERROR. .NET decimal is not automatically sufficient for every PIC;
@@ -37,7 +42,14 @@ behavior explicitly; never use silent success/no-op placeholders.
    together with implementation changes.
 
 Consult [compatibility guidance](compatibility.md) for edge cases and
-[verification](verification.md) for evidence rules.
+[GnuCOBOL observations](gnucobol-semantics.md) for probes of edited PIC,
+COMP-3 and file IO. Use [verification](verification.md) and
+[harness patterns](harness-patterns.md) for evidence rules.
+
+Malformed digits or shifted packed fields may have undefined/runtime-dependent
+behavior. Do not invent permissive codecs to manufacture parity. Document the
+exact case and limits as **unverified**; unexpected mismatches on defined inputs
+remain **failed**. Do not stop translating unrelated, well-defined programs.
 
 ## Integration handoff
 

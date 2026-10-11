@@ -1,6 +1,11 @@
 {
   "schema_version": "1",
   "program": null,
+  "workspace": {
+    "output_root": null,
+    "original_hashes": [],
+    "post_run_hashes": []
+  },
   "source": {
     "path": null,
     "format": null,
@@ -14,6 +19,12 @@
     "format": null,
     "framework_or_host": null,
     "entrypoint": null
+  },
+  "oracle": {
+    "source_variant": null,
+    "compiler_version": null,
+    "compiler_options": [],
+    "patches": []
   },
   "records": [
     {
@@ -48,6 +59,28 @@
       "keys": [],
       "status_branches": [],
       "mutates_input": null,
+      "input_contract": {
+        "path": null,
+        "encoding": null,
+        "physical_format": null,
+        "size_bytes": null,
+        "observed_record_length_bytes": null,
+        "declared_record_length_bytes": null,
+        "length_check": null,
+        "conversion": {
+          "required": null,
+          "text_ranges": [],
+          "preserved_ranges": [],
+          "output_path": null,
+          "evidence": null
+        }
+      },
+      "output_contract": {
+        "framing": null,
+        "newline_bytes": null,
+        "close_behavior": null,
+        "oracle_case": null
+      },
       "source_reference": null
     }
   ],

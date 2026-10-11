@@ -85,20 +85,23 @@ Replace paths/program names with your own. No named sample is required.
 
 > Use cobol-to-csharp. Analyze the programs under `legacy/batch/`, copybooks
 > under `legacy/copybooks/`, and JCL under `legacy/jobs/`. Write source-backed
-> Markdown, Mermaid diagrams, and field maps under `migration/`. Do not
+> Markdown, Mermaid diagrams, and field maps under `migration-output/docs/`
+> and `migration-output/maps/`. Do not
 > translate yet. List missing dependencies and open questions.
 
 **Document and translate**
 
 > Use cobol-to-csharp on the selected program in `legacy/batch/`. Document
-> it first, then generate runnable C# .cs files under `modernized/`. Preserve
+> it first, then generate runnable C# .cs files under `migration-output/csharp/`.
+> Put all other generated artifacts under `migration-output/` too.
+> Leave the original source and data unchanged. Preserve
 > file statuses, numeric behavior, and observable quirks. Compare with the
 > original runtime using disposable input copies. Do not claim parity when
 > the original cannot run.
 
 **Validate an existing translation**
 
-> Use cobol-to-csharp to verify `modernized/` against the original in `legacy/`.
+> Use cobol-to-csharp to verify `migration-output/csharp/` against `legacy/`.
 > Report exact commands, datasets, artifact differences, masks and missing
 > evidence. Do not change original sources or regenerate expected output to
 > hide a mismatch.
@@ -110,30 +113,55 @@ The following is an **illustrative layout**, not captured migration output:
 ```text
 your-project/
   legacy/                         # Your original code, unchanged
-  migration/
-    analysis/<PROGRAM>.md         # Dependencies, data, flow, errors
+  data/                           # Your original inputs, unchanged
+  migration-output/               # Dedicated new folder for ALL derived artifacts
+    docs/<PROGRAM>-analysis.md    # Dependencies, data, flow, errors
     maps/<PROGRAM>.json           # Byte ranges, rules, traceability
-    validation.md                 # Commands, results, gaps
-    getting-started.md             # How to run the generated target
-  modernized/
-    ... .cs / project files       # Structure chosen for your project
-    ... tests / IO adapters       # Only what your source requires
+    csharp/                       # .cs/project files, adapters, bin/obj
+    tests/                        # Target tests
+    inputs/                       # Converted copies; packed bytes preserved
+    build/oracle-src/             # Only authorized, documented scratch patches
+    build/oracle-bin/             # Original-runtime binaries
+    run/<CASE>/{oracle,target}/   # Independent inputs and captured artifacts
+    harness/                      # Project-specific comparison tools
+    original-hashes.json          # Before/after immutability evidence
+    validation-report.md          # Commands, results, gaps, inventory counts
+    README.md                     # How to run the generated target
 ```
 
-Your layout may differ. A real migration handoff should contain actual
+Choose a new output root that neither contains nor sits inside the source/data
+trees, including through symlinks. Do not add converted files to `data/`,
+edit the original README or scatter oracle binaries alongside the sources.
+Existing target edits require an explicit request. Installation may add agent
+configuration directories; that is separate from migration output.
+
+Your subdirectory names may differ. A real migration handoff should contain actual
 captured output from the generated project's build/run/comparison commands
 when those commands can execute. This package cannot show genuine translated
-output without your source project and an agent run.
+output for your project without its source and an agent run. The public-source
+walkthrough below supplies captured evidence for only its named synthetic case.
 
 Common outcomes:
 
 - **Verified for named cases:** original and target executed and compared.
-- **Unverified:** C# was produced, but original-runtime evidence is missing.
-- **Blocked:** missing copybooks, service contracts, or tools prevent a step.
+- **Unverified:** evidence is missing/limited, or malformed/undefined data prevents
+  a defensible equivalence claim; an expected mismatch is not a pass.
+- **Blocked:** missing dependencies/tools or source compile defects prevent a step.
 - **Failed:** build/tests/comparison found a concrete mismatch.
 
 The skill tells the agent to report the difference or missing dependency,
 not quietly skip it or pretend a synthetic expected output is an oracle.
+Every requested program/case stays in the summary. For example, the user's
+reported course run counted 18 verified, 1 unverified and 5 blocked out of 24;
+that is partial named-case coverage, not "ALL PASS". That report is not an
+independent reproduction by this repository's package tests.
+
+The packaged [GnuCOBOL notes](../skills/cobol-to-csharp/references/gnucobol-semantics.md)
+explain byte-level probes and their limits. The
+[harness patterns](../skills/cobol-to-csharp/references/harness-patterns.md) cover
+bounded processes, isolated files and honest verdicts. A
+[CBL0001 walkthrough](../skills/cobol-to-csharp/references/worked-example.md)
+shows the documentation/translation/validation path without bundling a demo.
 
 ## Check the package itself
 

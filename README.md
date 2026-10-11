@@ -28,8 +28,9 @@ local checkout and apply it to your source project. No installer is required.
 ## Use
 
 > Use the cobol-to-csharp skill. Document the COBOL under `legacy/`, including
-> its copybooks and JCL. Write the analysis and field maps under `migration/`.
-> Then translate the selected programs into C# under `modernized/`, preserving
+> its copybooks and JCL. Put all generated artifacts under a new
+> `migration-output/` folder, leaving original source and data unchanged.
+> Then translate the selected programs into C# there, preserving
 > behavior. Start with one dependency cluster, validate it against the original,
 > and report anything you cannot verify.
 
@@ -48,6 +49,10 @@ C# normally means `.cs` files in a runnable .NET project. If you want `.csx`,
 specify your script host; the skill does not assume one. The skill is a
 procedure for an AI agent, **not a deterministic command-line converter**.
 Outputs depend on your source, agent, and available evidence.
+The output folder contains docs/maps, C#/tests, converted input copies, oracle
+builds, isolated runs, harness and run guide. Encoding and physical-versus-declared
+record lengths are checked first; blocked/unverified cases stay in the inventory.
+Runtime notes include scoped GnuCOBOL probes, not universal COBOL defaults.
 
 ## Package layout
 

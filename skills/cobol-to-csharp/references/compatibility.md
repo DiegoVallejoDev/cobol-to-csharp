@@ -16,12 +16,16 @@ specification. Record the actual dialect/options and justify each decision.
 | CALL / LINKAGE | BY REFERENCE/CONTENT/VALUE, shared mutation, argument representation, return codes |
 | Control flow | PERFORM THRU, fall-through, GO TO, paragraphs reached from multiple paths |
 | Files | Organization, access mode, key ordering/duplicates, START, REWRITE, status codes, locks |
+| Print/edited fields | Floating currency, zero suppression, punctuation/sign slots, decimal/currency configuration, WRITE/ADVANCING/CLOSE bytes |
+| Input preparation | Source versus data encoding, field-aware conversion, physical framing versus declared FD length, malformed-data limits |
 | Variable records | Actual descriptor format and whether its length includes the descriptor; compiler/runtime flags |
 | JCL / services | DD mapping, PARM bytes, step conditions, utility behavior, transactions, CICS/DB/service boundaries |
 
 COMP-3 generally stores two decimal digits per byte and a trailing sign nibble;
 an even number of digits requires a pad nibble. Accepted signs and validation
 policy must come from compiler/runtime evidence, not a single guessed table.
+Decoder behavior and `IS NUMERIC` acceptance need not be identical. See
+[scoped GnuCOBOL observations](gnucobol-semantics.md), not a universal sign table.
 
 .NET decimal has finite precision/range. Check the entire PIC and arithmetic
 path; use a scaled integer or appropriate explicit representation where needed.
