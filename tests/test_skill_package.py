@@ -101,6 +101,9 @@ class SkillPackageTests(unittest.TestCase):
                 "harness-patterns.md", "worked-example.md",
             ):
                 self.assertTrue((installed / "references" / reference).is_file())
+            self.assertTrue(
+                (installed / "checklists/output-artifacts.md").is_file()
+            )
             self.assertFalse((project / "AGENTS.md").exists())
             self.assertFalse((project / "tools").exists())
             self.assertFalse((project / "src").exists())
@@ -171,10 +174,84 @@ class SkillPackageTests(unittest.TestCase):
             "references/gnucobol-semantics.md",
             "references/harness-patterns.md", "references/worked-example.md",
             "assets/program-analysis.md", "assets/migration-map.json",
-            "assets/validation-report.md",
+            "assets/validation-report.md", "checklists/output-artifacts.md",
         ):
             self.assertIn(resource, text)
         self.assertIn("unverified translation", text)
+
+    def test_generated_code_hygiene_requires_build_before_compare(self):
+        text = " ".join(
+            (SKILL / "references/translation.md").read_text(
+                encoding="utf-8"
+            ).split()
+        )
+        for term in (
+            "Generated-code hygiene gate", "before any behavioral comparison",
+            "dotnet build", "script host's compilation check",
+            "stale binary", "build error",
+            "declared byte offsets and widths", "encoded byte lengths",
+            "retained bytes", "intentional overlays", "hand-counted space runs",
+        ):
+            self.assertIn(term, text)
+        skill = " ".join((SKILL / "SKILL.md").read_text().split())
+        self.assertIn("comes before behavioral comparison", skill)
+
+    def test_canonical_mask_example_has_consistent_byte_arithmetic(self):
+        text = (SKILL / "references/harness-patterns.md").read_text(
+            encoding="utf-8"
+        )
+        block = re.search(r"```json\n(.*?)\n```", text, re.DOTALL)
+        self.assertIsNotNone(block)
+        mask = json.loads(block.group(1))
+        inclusive = re.search(r"bytes (\d+) through (\d+) inclusive", text)
+        self.assertIsNotNone(inclusive)
+        start, end = map(int, inclusive.groups())
+        self.assertEqual((67, 70), (start, end))
+        self.assertEqual(start, mask["offset_bytes"])
+        self.assertEqual(end - start + 1, mask["length_bytes"])
+        self.assertEqual((67, 4), (
+            mask["offset_bytes"], mask["length_bytes"]
+        ))
+        self.assertIn("[67, 71)", text)
+        for key in (
+            "case", "artifact", "field", "source_reference", "reason", "validation",
+        ):
+            self.assertTrue(mask[key], key)
+        self.assertIn("ASCII digits", mask["validation"])
+        normalized = " ".join(text.split())
+        for term in (
+            "Illustrative only", "absolute artifact", "out-of-bounds",
+            "Validate each raw year independently", "comparison copies",
+            "Do not mask adjacent byte 66 or 71",
+        ):
+            self.assertIn(term, normalized)
+
+    def test_output_checklist_contains_layout_and_conditional_audit_gates(self):
+        text = (SKILL / "checklists/output-artifacts.md").read_text(
+            encoding="utf-8"
+        )
+        for artifact in (
+            "migration-output/", "docs/", "maps/", "csharp/", "tests/", "inputs/",
+            "build/oracle-src/", "build/oracle-bin/", "run/<CASE>/{oracle,target}/",
+            "harness/", "original-hashes.json", "validation-report.md", "README.md",
+        ):
+            self.assertIn(artifact, text)
+        normalized = " ".join(text.split())
+        for term in (
+            "illustrative layout", "paths or symlinks", "before/after hashes",
+            "traceability", "independent staging", "current build gate",
+            "offsets", "zero-based offset/length", "format/domain validation",
+            "every declared artifact", "unverified", "blocked", "failed",
+            "full requested inventory", "ALL PASS", "gaps", "untested assumptions",
+            "Conditional artifacts", "analysis-only", "do not manufacture",
+        ):
+            self.assertIn(term, normalized)
+        self.assertNotIn("- [x]", text)
+        for path in (ROOT / "README.md", ROOT / "docs/getting-started.md"):
+            self.assertIn(
+                "skills/cobol-to-csharp/checklists/output-artifacts.md",
+                path.read_text(encoding="utf-8"),
+            )
 
     def test_source_preservation_and_preflight_contracts(self):
         skill = (SKILL / "SKILL.md").read_text(encoding="utf-8").lower()

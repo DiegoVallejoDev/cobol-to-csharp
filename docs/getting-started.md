@@ -108,26 +108,12 @@ Replace paths/program names with your own. No named sample is required.
 
 ## What the result looks like
 
-The following is an **illustrative layout**, not captured migration output:
-
-```text
-your-project/
-  legacy/                         # Your original code, unchanged
-  data/                           # Your original inputs, unchanged
-  migration-output/               # Dedicated new folder for ALL derived artifacts
-    docs/<PROGRAM>-analysis.md    # Dependencies, data, flow, errors
-    maps/<PROGRAM>.json           # Byte ranges, rules, traceability
-    csharp/                       # .cs/project files, adapters, bin/obj
-    tests/                        # Target tests
-    inputs/                       # Converted copies; packed bytes preserved
-    build/oracle-src/             # Only authorized, documented scratch patches
-    build/oracle-bin/             # Original-runtime binaries
-    run/<CASE>/{oracle,target}/   # Independent inputs and captured artifacts
-    harness/                      # Project-specific comparison tools
-    original-hashes.json          # Before/after immutability evidence
-    validation-report.md          # Commands, results, gaps, inventory counts
-    README.md                     # How to run the generated target
-```
+Original code and inputs (for example, `legacy/` and `data/`) stay where they
+are, unchanged.
+All derived artifacts go under a new `migration-output/` root. The installed
+skill's [one-page artifact checklist](../skills/cobol-to-csharp/checklists/output-artifacts.md)
+contains the canonical illustrative layout and handoff audit, including which
+artifacts are conditional. It is not captured migration output.
 
 Choose a new output root that neither contains nor sits inside the source/data
 trees, including through symlinks. Do not add converted files to `data/`,

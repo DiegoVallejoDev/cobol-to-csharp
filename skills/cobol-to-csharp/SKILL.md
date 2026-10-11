@@ -45,6 +45,9 @@ guide. Do not scatter files beside the originals or overwrite the project's
 README. Reuse an existing target only when explicitly requested; do not overwrite
 previous migration runs without agreement.
 
+Use the [output-artifact checklist](checklists/output-artifacts.md) for the
+canonical layout and handoff audit.
+
 Hash the scoped original source/copybooks/JCL and input files before and after.
 Run both implementations against independent disposable copies below the output
 root. Never create a converted `ACCTREC` in the original data directory.
@@ -83,9 +86,11 @@ required; do not force a prebuilt runtime or vendor framework.
 
 Start original-versus-C# comparison now, using
 [the verification procedure](references/verification.md) and
-[safe harness patterns](references/harness-patterns.md). Build/test each
-coherent increment when tools exist. Keep source references, implementation
-status, and mismatches with the migration artifacts.
+[safe harness patterns](references/harness-patterns.md). A successful build of
+the current target (or the specified script host's compilation check) comes before
+behavioral comparison; follow the translation hygiene gate and run tests.
+Keep source references, implementation status, and mismatches with the
+migration artifacts.
 
 **Gate:** requested programs have C# implementations, documented adapters,
 error-path coverage, and stated verification evidence. Compilation or C# unit
@@ -106,7 +111,8 @@ output as captured output.
 
 ## Final handoff
 
-Use [the validation-report template](assets/validation-report.md). Include:
+Audit [the output artifacts](checklists/output-artifacts.md) and use
+[the validation-report template](assets/validation-report.md). Include:
 
 - Source/dependency scope and generated paths, including excluded programs.
 - Paragraph-to-C# traceability and remaining external adapters.

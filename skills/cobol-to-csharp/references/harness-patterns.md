@@ -104,6 +104,34 @@ Distinguish inclusive ranges from half-open ranges before using reported offsets
 Validate raw artifacts first; compare masked copies, never mutate captured output.
 Do not reuse the course's CURRENT-DATE spans without verifying the actual layout.
 
+### Canonical mask example
+
+Illustrative only: suppose the case's analysis establishes HEADER-2.YEAR at
+**absolute artifact bytes 67 through 70 inclusive, zero-based**. Store its mask
+as offset **67**, length **4**, equivalent to the half-open slice **[67, 71)**:
+
+```json
+{
+  "case": "dated-report",
+  "artifact": "PRTLINE",
+  "offset_bytes": 67,
+  "length_bytes": 4,
+  "field": "HEADER-2.YEAR",
+  "source_reference": "<source path and paragraph/line evidence>",
+  "reason": "CURRENT-DATE year may differ between executions",
+  "validation": "four ASCII digits within the case's allowed year range"
+}
+```
+
+For zero-based inclusive endpoints, `length = end - start + 1`; for a one-based
+inclusive span, also subtract one from the start to obtain `offset_bytes`.
+Reject negative/zero-length or out-of-bounds spans on **either** artifact.
+Validate each raw year independently before replacing these four bytes in
+comparison copies. Do not mask adjacent byte 66 or 71. Record-relative spans
+must first be resolved using the proven record start/stride; do not treat a
+header's field-relative offset as an absolute file offset. Replace the evidence
+placeholder and derive the actual location from this case, not this example.
+
 ## Four verdicts, no false-green aggregate
 
 | Verdict | Meaning |
