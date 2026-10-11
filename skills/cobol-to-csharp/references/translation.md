@@ -37,9 +37,27 @@ behavior explicitly; never use silent success/no-op placeholders.
 6. Add only necessary shared primitives in the user's project. Each codec,
    record descriptor, numeric conversion, or IO abstraction needs boundary
    tests and source/runtime evidence. Do not equate flat files with full VSAM.
-7. Build and test the increment when the target toolchain is available; compare
-   outputs with the original before continuing. Update traceability and maps
-   together with implementation changes.
+7. Build the current increment successfully before any behavioral comparison;
+   run its tests, then compare outputs with the original before continuing.
+   Update traceability and maps together with implementation changes.
+
+## Generated-code hygiene gate
+
+- [ ] Run `dotnet build` for the current generated project (or the specified
+  script host's compilation check). Capture command, diagnostics and exit.
+  The compiler catches declaration/type errors cheaply; passing is necessary,
+  not evidence of parity. Never compare a stale binary after a failed build.
+- [ ] Resolve generated-code build errors before running the comparator. A
+  target build error is **failed**; a missing toolchain blocks this gate.
+  An unverified draft may be delivered with the gap stated, not fabricated runs.
+- [ ] Construct headers, literals and FILLER field-by-field at **declared byte
+  offsets and widths** from the map, rather than one hand-counted long string.
+  Check encoded byte lengths, not C# character counts. Use only source-backed
+  padding/initialization values; preserve retained bytes and intentional overlays.
+- [ ] Assert group/record byte totals, field bounds and intended overlaps in
+  tests. Check header/filler output as bytes, including trailing spaces.
+- [ ] Flag hand-counted space runs as suspect. Replace them with mapped field
+  writes or verify their encoded length against the declared layout before use.
 
 Consult [compatibility guidance](compatibility.md) for edge cases and
 [GnuCOBOL observations](gnucobol-semantics.md) for probes of edited PIC,

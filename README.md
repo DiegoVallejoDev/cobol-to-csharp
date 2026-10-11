@@ -53,6 +53,8 @@ The output folder contains docs/maps, C#/tests, converted input copies, oracle
 builds, isolated runs, harness and run guide. Encoding and physical-versus-declared
 record lengths are checked first; blocked/unverified cases stay in the inventory.
 Runtime notes include scoped GnuCOBOL probes, not universal COBOL defaults.
+See the [one-page output checklist](skills/cobol-to-csharp/checklists/output-artifacts.md)
+for the canonical layout and handoff audit.
 
 ## Package layout
 
@@ -60,6 +62,7 @@ Runtime notes include scoped GnuCOBOL probes, not universal COBOL defaults.
 skills/cobol-to-csharp/
   SKILL.md          # Single entry point
   references/       # Analysis, translation, verification, compatibility
+  checklists/       # One-page output-artifact audit
   assets/           # Blank analysis/map/validation templates
 .claude-plugin/     # Optional Claude plugin metadata
 docs/               # Human installation and usage
