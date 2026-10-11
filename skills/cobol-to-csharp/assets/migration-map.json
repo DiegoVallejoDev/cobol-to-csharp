@@ -1,0 +1,68 @@
+{
+  "schema_version": "1",
+  "program": null,
+  "source": {
+    "path": null,
+    "format": null,
+    "dialect": null,
+    "compiler_options": [],
+    "encoding": null,
+    "copybooks": [],
+    "jcl": []
+  },
+  "target": {
+    "format": null,
+    "framework_or_host": null,
+    "entrypoint": null
+  },
+  "records": [
+    {
+      "name": null,
+      "length_bytes": null,
+      "source_reference": null,
+      "fields": [
+        {
+          "name": null,
+          "pic": null,
+          "usage": null,
+          "offset_bytes": null,
+          "length_bytes": null,
+          "scale": null,
+          "sign": null,
+          "encoding": null,
+          "occurs": null,
+          "redefines": null,
+          "source_reference": null
+        }
+      ]
+    }
+  ],
+  "files": [
+    {
+      "name": null,
+      "dd_or_assignment": null,
+      "organization": null,
+      "access_mode": null,
+      "open_mode": null,
+      "record": null,
+      "keys": [],
+      "status_branches": [],
+      "mutates_input": null,
+      "source_reference": null
+    }
+  ],
+  "paragraphs": [
+    {
+      "name": null,
+      "source_reference": null,
+      "calls_or_transfers": [],
+      "target_file_and_method": null,
+      "implementation_status": null,
+      "oracle_cases": []
+    }
+  ],
+  "numeric_rules": [],
+  "dependencies": [],
+  "quirks": [],
+  "unresolved": []
+}

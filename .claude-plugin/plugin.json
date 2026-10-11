@@ -1,0 +1,6 @@
+{
+  "name": "cobol-to-csharp",
+  "version": "1.0.0",
+  "description": "Document COBOL and translate it to C# through a source-backed, three-phase AI skill.",
+  "skills": "./skills/"
+}

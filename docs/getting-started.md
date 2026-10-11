@@ -1,151 +1,169 @@
-# Getting started — install, run, and what you'll see
+# Install the skill and use it on your COBOL
 
-This project ports real IBM-mainframe COBOL to C# and **proves** the port
-behaves identically by running the original COBOL and the C# side-by-side
-and comparing every output file byte-for-byte. No trust required — the
-comparison *is* the demo.
+## What you are installing
 
-## What you need
+You are installing instructions for your existing coding agent, not a converter
+binary or a sample C# application. The agent reads your COBOL, documents it,
+and writes C# and tests into **your project**. There is no bundled COBOL estate,
+target runtime library, or model/API service.
 
-| Tool | Why | Install (Debian/Ubuntu) |
-|------|-----|--------------------------|
-| GnuCOBOL 3 | runs the *original* COBOL to produce the answer key | `sudo apt-get install gnucobol3` |
-| .NET 8 SDK | builds and runs the C# ports | `curl -LsSf https://dot.net/v1/dotnet-install.sh \| bash -s -- --channel 8.0 --install-dir ~/.dotnet` then add `~/.dotnet` to `PATH` |
-| Python 3 | the staging + comparison scripts | already on most systems |
+You need a file-capable coding agent and your source/copybooks/JCL. Install .NET
+in the target development environment to build generated `.cs` projects. To
+prove behavioral parity, you also need a compatible original COBOL runtime
+and safe inputs; analysis itself does not require either compiler.
 
-The supported/verified path is Linux or WSL with Bash. GnuCOBOL is needed
-only to produce fresh original outputs, not to compare against checked-in
-goldens. Add the installed SDK to your current shell with
-`export PATH="$HOME/.dotnet:$PATH"`.
+## Option 1: skills CLI
+
+From your target project's root:
 
 ```bash
-git clone https://github.com/DiegoVallejoDev/cobol-to-csharp.git
-cd cobol-to-csharp
-dotnet test          # 9 contract tests on the runtime codecs — should all pass
+npx skills add DiegoVallejoDev/cobol-to-csharp --skill cobol-to-csharp
 ```
 
-For the complete project acceptance gate, including harness regressions
-and both parity datasets, run `bash tools/verify.sh`. It does not regenerate
-the checked-in goldens.
-
-## Running the whole pipeline (one command)
+This optional installer requires a supported Node.js version/network access.
+Select the agent and
+installation method interactively. To explicitly select Claude Code or Codex:
 
 ```bash
-tests/parity/run_parity.sh 2022071800 mainframe/data tests/parity/golden
+npx skills add DiegoVallejoDev/cobol-to-csharp --skill cobol-to-csharp --agent claude-code
+npx skills add DiegoVallejoDev/cobol-to-csharp --skill cobol-to-csharp --agent codex
 ```
 
-Arguments: `<JCL PARM> <input data dir> <golden dir>`. It stages the flat
-sample data into VSAM-style fixed-length files, builds the C# solution,
-runs all four ported programs, and diffs every artifact against the
-checked-in goldens.
+Inspect the installed skill listing in your client. Loader support varies by
+version. These commands target the repository's default branch; use the local
+copy method below when evaluating an unmerged branch.
 
-To run the smaller synthetic interest-calculation case, select its one
-supported program explicitly:
+## Option 2: copy the self-contained directory
+
+Clone this skill repository somewhere **outside** the target source project:
 
 ```bash
-tests/parity/run_parity.sh 2022071800 tests/parity/synthetic/data tests/parity/synthetic/golden CBACT04C
+git clone https://github.com/DiegoVallejoDev/cobol-to-csharp.git "$HOME/cobol-to-csharp-skill"
 ```
 
-Without trailing program names the runner requires all four programs.
-Missing golden files/directories and nonzero program exits fail validation;
-they do not silently reduce test coverage.
-
-What you see when everything is correct:
-
-```
-cbact01c:
-  sysout.txt: identical (41426 bytes)
-  OUTFILE: identical (5350 bytes)
-  ARRYFILE: identical (5500 bytes)
-  VBRCFILE: identical (2950 bytes)
-cbact02c:
-  sysout.txt: identical (7626 bytes)
-cbact03c:
-  sysout.txt: identical (5176 bytes)
-cbact04c:
-  sysout.txt: identical (5626 bytes)
-  TRANSACT: 50 records identical (timestamps masked + format-checked)
-  acctdata: identical (15000 bytes)
-run dir: /tmp/cbact-cs.5XXyhm
-```
-
-Every `identical` line means: the C# program produced *exactly* the bytes
-the real COBOL produced — including packed-decimal encoding, EBCDIC
-overpunch signs, record-delimiter words, and bug-for-bug quirks.
-
-## What it looks like when something is wrong
-
-If a port diverges — say a field written one byte off — the report names
-the artifact, the first differing byte offset, and the raw bytes:
-
-```
-cbact01c:
-  sysout.txt: identical (41426 bytes)
-  OUTFILE: DIFFERS (5350 vs 5350 bytes)
-    first differing byte: 100
-    line 0: b'00000000001Y00000001940{...' != b'00000000001Y00000001940{...'
-```
-
-That is the whole feedback loop: fix the port, re-run, `identical` again.
-The temp `run dir` keeps every produced file for manual inspection.
-
-## Running one program by hand
-
-Same interface as the JCL job it replaces (`EXEC PGM=CBACT04C,PARM=...`):
+From your target project's root, choose one destination:
 
 ```bash
-data_dir="$(mktemp -d)"
-python3 tests/parity/stage.py mainframe/data "$data_dir"
-dotnet run --project src/CardDemo.Batch -- CBACT04C 2022071800 "$data_dir"
+# Claude Code project skill
+mkdir -p .claude/skills
+cp -R "$HOME/cobol-to-csharp-skill/skills/cobol-to-csharp" .claude/skills/
+
+# Codex / clients supporting .agents/skills
+mkdir -p .agents/skills
+cp -R "$HOME/cobol-to-csharp-skill/skills/cobol-to-csharp" .agents/skills/
 ```
 
-The program prints exactly what the COBOL `DISPLAY` statements printed
-(sysout) for the tested sample and writes its output files into `$data_dir`.
-It also **rewrites `acctdata`**, so use a disposable staged copy as above.
-Raw `.txt` inputs and GnuCOBOL indexed database files are not the C# input
-format. The runner stages independent copies automatically.
+Do not copy only SKILL.md: it links to packaged references and templates.
+Inspect any existing destination first; do not overwrite an installed skill
+without deciding whether to update it. Consumer installation needs neither
+this repository's tests nor its root AGENTS.md/CLAUDE.md.
 
-## Pointing it at a different COBOL program
+## Option 3: Claude plugin or explicit file loading
 
-This is a four-program pilot, not an automatic converter. Extending the
-same method to a new program requires explicit registration:
+The `.claude-plugin/plugin.json` manifest points to the same canonical skill.
+For a local Claude Code session in the **target project**, use:
 
-1. **Sources** — drop the `.cbl` into `mainframe/cbl/`, copybooks into
-   `mainframe/cpy/`, input flat files into `mainframe/data/`.
-2. **Compile it for the golden** — register it in the program-selection
-   lists and add a run case in `tests/parity/run_cobol.sh`
-   (compilation uses `cobc -m -std=ibm -fsign=EBCDIC`).
-   Add a JCLDRV/`cobcrun` invocation
-   that captures its sysout + output files into `golden/<prog>/`.
-   (JCLDRV currently calls CBACT04C; adapt linkage for a new PARM-taking program.
-   If it reads new indexed files, write a tiny `LOAD<FILE>` COBOL loader
-   like the ones in `tools/gnucobol/` and add the LRECL to
-   `tests/parity/stage.py`.)
-3. **Port it** — new class in `src/CardDemo.Batch/`, dispatched from
-   `Program.cs`. Write the field map first (`migration-map/<PROG>.json`:
-   every record's `[offset, length, type]`), then translate
-   paragraph-by-paragraph using `Legacy.Runtime` primitives.
-4. **Compare it** — register execution in `tests/parity/run_parity.sh`
-   and add the program to `tests/parity/compare.py`'s table:
-   which artifacts to diff (`sysout.txt` plus each output file) and which
-   byte spans to mask (timestamps).
+```bash
+claude --plugin-dir "$HOME/cobol-to-csharp-skill"
+```
 
-Generate the original's answer key in a scratch directory first, run the
-port against it, then review the oracle command/provenance before checking
-in new goldens. Never regenerate expected output from the C# port or change
-goldens merely to hide a mismatch.
+Claude plugins namespace their skills; use `/cobol-to-csharp:cobol-to-csharp`.
+A manually installed project skill is invoked as `/cobol-to-csharp`.
+In Codex, mention `$cobol-to-csharp` after it appears in the skill listing.
 
-This proves tested behavior against GnuCOBOL plus local runtime stubs,
-not production IBM execution or all possible COBOL inputs. See
-[the improvement audit](improvement-audit.md) for current limitations.
+For Devin or any other file-capable agent, provide the source workspace and
+the path to `skills/cobol-to-csharp/SKILL.md` in your checkout. Ask it to read
+that file and follow its linked references. Native plugin/skill installation
+is client-specific; explicit loading is the fallback, not a promise that every
+client automatically discovers this repository.
 
-## Where to look next
+## Give the agent a bounded request
 
-- `docs/analysis/` — what Phase 1 documentation looks like per program
-- `migration-map/` — the deterministic contract between analysis and code
-- `src/Legacy.Runtime/` — the COBOL primitives the ports share (the piece
-  you extend for new PIC clauses / file organizations)
-- `tests/parity/synthetic/` — how to craft datasets that hit paths the
-  shipped sample data can't reach
-- [Agent guide](agents.md) — shared instructions, Claude/Codex discovery
-  and reusable analysis/translation/parity skills
+Replace paths/program names with your own. No named sample is required.
+
+**Documentation only**
+
+> Use cobol-to-csharp. Analyze the programs under `legacy/batch/`, copybooks
+> under `legacy/copybooks/`, and JCL under `legacy/jobs/`. Write source-backed
+> Markdown, Mermaid diagrams, and field maps under `migration/`. Do not
+> translate yet. List missing dependencies and open questions.
+
+**Document and translate**
+
+> Use cobol-to-csharp on the selected program in `legacy/batch/`. Document
+> it first, then generate runnable C# .cs files under `modernized/`. Preserve
+> file statuses, numeric behavior, and observable quirks. Compare with the
+> original runtime using disposable input copies. Do not claim parity when
+> the original cannot run.
+
+**Validate an existing translation**
+
+> Use cobol-to-csharp to verify `modernized/` against the original in `legacy/`.
+> Report exact commands, datasets, artifact differences, masks and missing
+> evidence. Do not change original sources or regenerate expected output to
+> hide a mismatch.
+
+## What the result looks like
+
+The following is an **illustrative layout**, not captured migration output:
+
+```text
+your-project/
+  legacy/                         # Your original code, unchanged
+  migration/
+    analysis/<PROGRAM>.md         # Dependencies, data, flow, errors
+    maps/<PROGRAM>.json           # Byte ranges, rules, traceability
+    validation.md                 # Commands, results, gaps
+    getting-started.md             # How to run the generated target
+  modernized/
+    ... .cs / project files       # Structure chosen for your project
+    ... tests / IO adapters       # Only what your source requires
+```
+
+Your layout may differ. A real migration handoff should contain actual
+captured output from the generated project's build/run/comparison commands
+when those commands can execute. This package cannot show genuine translated
+output without your source project and an agent run.
+
+Common outcomes:
+
+- **Verified for named cases:** original and target executed and compared.
+- **Unverified:** C# was produced, but original-runtime evidence is missing.
+- **Blocked:** missing copybooks, service contracts, or tools prevent a step.
+- **Failed:** build/tests/comparison found a concrete mismatch.
+
+The skill tells the agent to report the difference or missing dependency,
+not quietly skip it or pretend a synthetic expected output is an oracle.
+
+## Check the package itself
+
+From this repository's root:
+
+```bash
+bash tools/verify.sh
+```
+
+Requires Python 3 and Bash. It validates packaging and templates and tests
+standalone installation in an isolated directory. It does not invoke an LLM,
+translate a program, or validate generated C#.
+
+Actual package-check output (timing omitted):
+
+```text
+Ran 12 tests
+
+OK
+```
+
+The skills CLI (1.7.2) also discovered exactly one skill and successfully
+copied the complete package into isolated Claude Code and Codex project paths.
+The installed skill was discoverable through Devin's skill search. Live
+Claude/Codex agent sessions and a real-source translation were not run; package
+installation is not evidence of translation quality.
+
+## Format and client references
+
+- [Agent Skills format](https://agentskills.io/specification)
+- [Skills CLI installation](https://github.com/vercel-labs/skills)
+- [Claude Code skills and plugins](https://code.claude.com/docs/en/skills)
+- [Codex skills](https://developers.openai.com/codex/skills/)

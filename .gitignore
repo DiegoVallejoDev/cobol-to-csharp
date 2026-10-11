@@ -1,6 +1,2 @@
-bin/
-obj/
-*.user
-/tmp/
 __pycache__/
 *.pyc
