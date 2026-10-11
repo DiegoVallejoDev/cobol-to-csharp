@@ -1,7 +1,7 @@
-# Claude Code
+# Claude Code contributor instructions
 
 @AGENTS.md
 
-Project rules live in AGENTS.md. The skills under `.claude/skills/` point
-to the canonical procedures under `.agents/skills/`; read those procedures
-when a skill is invoked. Do not maintain a second copy of project rules.
+These are rules for editing the skill package. To use the migration skill in
+another project, install the complete `skills/cobol-to-csharp/` directory;
+do not copy this file or overwrite that project's instructions.

@@ -1,0 +1,66 @@
+# Phase 1: source-backed documentation
+
+## Inventory and dependency graph
+
+Read each selected program and all recursively included copybooks. Resolve
+COPY search paths and REPLACING clauses using the actual dialect/build setup.
+Record missing includes instead of silently substituting a similarly named file.
+
+Identify static and dynamic CALLs, ENTRY points, LINKAGE parameters, return
+codes, shared records, and transaction boundaries. Read JCL for step order,
+DD assignments, DISP, PARM, sorting/utilities, and conditional execution.
+Include database, queue, CICS, filesystem, and assembler/service contracts.
+Dynamic targets and unavailable services remain explicit open dependencies.
+
+Create Mermaid dependency and paragraph/control-flow diagrams. Use neutral
+node IDs and quoted labels. Diagram only relationships supported by source;
+distinguish dynamic/unresolved calls. Validate Mermaid with available tooling;
+if only inspected manually, state that rather than claiming parser validation.
+
+## Data and storage
+
+For each FD, SD, working-storage group, and linkage contract:
+
+- Calculate **zero-based byte** offsets and storage lengths, including filler,
+  sign representation, implied decimal scale, synchronization/alignment, and
+  compiler-specific binary widths.
+- Capture PIC, USAGE, sign, encoding, initialization and padding. Preserve
+  the distinction between elementary numeric values and group byte moves.
+- Record OCCURS bounds/stride and OCCURS DEPENDING ON. Model REDEFINES as
+  overlays, not additional sequential bytes. Level-88 conditions are predicates,
+  not stored fields.
+- Record fixed/varying lengths, keys (offset, width, collating sequence,
+  duplicates), organization, access/open modes, and file statuses.
+
+Check storage totals against source and compiler evidence. See
+[compatibility guidance](compatibility.md). Unknown lengths/offsets remain
+unknown and block implementations that depend on them.
+
+## Behavior and failures
+
+Trace paragraph entry/exit, PERFORM/THRU ranges, fall-through, GO TO targets,
+EOF and group boundaries, buffer reuse, rewrites, output ordering, and cleanup.
+Map each READ/WRITE/REWRITE/START and arithmetic status branch, including
+ON SIZE ERROR, INVALID KEY, AT END, abends, and partial output on failures.
+Document unreachable or suspicious behavior without correcting it.
+
+Every significant finding should reference a source path and paragraph/line
+range. Separate observed behavior, inferred intent, and unresolved assumptions.
+Do not take comments as proof when executable statements contradict them.
+
+## Deliverables and test design
+
+Fill [the analysis template](../assets/program-analysis.md) and
+[the field-map template](../assets/migration-map.json) in the target workspace.
+Arrays in the map describe actual records/files/paragraphs, not requirements
+to include nonexistent features. Replace nulls when established, or accompany
+remaining nulls with a precise unresolved item.
+
+Plan inputs and expected artifacts for happy paths, empty/missing inputs,
+missing/duplicate keys, invalid records, numeric boundaries, negative/zero
+values, rounding/truncation, last-group/EOF behavior, and external failures.
+Identify which cases require the original runtime. Use sanitized fixtures and
+disposable copies; do not commit production records or secrets.
+
+Hand off analysis, map, dependency contracts, proposed datasets, unknowns,
+and the smallest source-verified translation unit.
