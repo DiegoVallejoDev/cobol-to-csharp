@@ -7,6 +7,7 @@ import shutil
 import tempfile
 import unittest
 from urllib.parse import unquote, urlsplit
+import xml.etree.ElementTree as ET
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -61,6 +62,34 @@ class SkillPackageTests(unittest.TestCase):
     def test_human_documentation_links_resolve(self):
         files = [ROOT / "README.md", ROOT / "AGENTS.md", ROOT / "CLAUDE.md"]
         check_links(self, [*files, *ROOT.glob("docs/*.md")], ROOT)
+
+    def test_readme_logo_is_accessible_and_self_contained(self):
+        logo = ET.parse(ROOT / "docs/logo.svg").getroot()
+        namespace = "{http://www.w3.org/2000/svg}"
+        self.assertEqual(namespace + "svg", logo.tag)
+        self.assertEqual("img", logo.get("role"))
+        labelled_by = logo.get("aria-labelledby").split()
+        for name in ("title", "desc"):
+            element = logo.find(namespace + name)
+            self.assertIsNotNone(element)
+            self.assertIn(element.get("id"), labelled_by)
+            self.assertTrue(element.text.strip())
+        bounds = list(map(float, logo.get("viewBox").split()))
+        self.assertEqual(4, len(bounds))
+        self.assertGreater(bounds[2], 0)
+        self.assertGreater(bounds[3], 0)
+        for element in logo.iter():
+            self.assertNotIn(
+                element.tag.rsplit("}", 1)[-1],
+                ("script", "foreignObject", "image", "a"),
+            )
+            for attribute in element.attrib:
+                self.assertFalse(attribute.lower().startswith("on"))
+                self.assertNotIn(attribute.rsplit("}", 1)[-1], ("href", "src"))
+        self.assertRegex(
+            (ROOT / "README.md").read_text(encoding="utf-8"),
+            r"!\[[^\]]*COBOL[^\]]*C#[^\]]*\]\(docs/logo\.svg\)",
+        )
 
     def test_claude_contributor_rules_import_shared_rules(self):
         self.assertIn("@AGENTS.md", (ROOT / "CLAUDE.md").read_text())

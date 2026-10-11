@@ -1,3 +1,5 @@
+![A COBOL dinosaur meets its C# meteor: extinction level refactoring.](docs/logo.svg)
+
 # COBOL to C# — an AI skill
 
 A portable [Agent Skill](https://agentskills.io/specification) that teaches

@@ -1,0 +1,77 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="440" height="300" viewBox="0 0 440 300"
+     role="img" aria-labelledby="title description">
+  <title id="title">COBOL meets its C# meteor</title>
+  <desc id="description">A hand-drawn green dinosaur labeled COBOL looks nervously
+    at an incoming orange meteor labeled C#. Extinction level refactoring.</desc>
+
+  <path fill="#fff8e8" d="M28 10 Q220 3 412 12 Q430 13 430 32 L433 270
+    Q430 291 411 291 L28 294 Q10 291 9 273 L8 30 Q9 12 28 10Z"/>
+
+  <g stroke="#292c29" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+    <path fill="#ffd375" d="M296 77 Q325 51 344 39 L380 22 L365 48
+      L412 26 L397 61 L422 51 Q411 88 349 126Z"/>
+    <path fill="#f9a45d" stroke-width="2" d="M304 81 Q341 70 378 49
+      L367 70 L399 62 Q384 91 344 115Z"/>
+    <path fill="none" stroke="#da8050" stroke-width="2"
+      d="M357 29 L368 18 M386 32 L398 20 M405 82 L419 71"/>
+
+    <path fill="#e89565" d="M293 73 Q308 58 330 63 Q352 67 358 91
+      Q362 110 344 124 Q325 137 305 125 Q284 110 287 91 Q288 80 293 73Z"/>
+    <path fill="none" stroke="#b95f45" stroke-width="2"
+      d="M300 83 Q296 79 301 76 Q308 73 310 78 M340 112 Q346 109 349 103
+         M304 117 Q310 123 317 123"/>
+    <path fill="none" stroke="#292c29" stroke-width="3.2"
+      d="M319 86 Q307 79 303 91 Q300 104 313 107 L318 105
+         M329 85 L325 107 M341 85 L337 107
+         M324 92 L345 91 M322 100 L342 99"/>
+
+    <path fill="none" stroke-width="2" stroke-dasharray="4 7"
+      d="M297 143 Q282 159 277 185"/>
+    <path fill="none" stroke-width="2" d="M268 58 L271 49 M279 64 L287 58"/>
+
+    <path fill="none" stroke="#727a65" stroke-width="2"
+      d="M44 261 Q115 257 176 262 Q228 265 271 259 M71 269 L87 268
+         M247 268 L257 267"/>
+
+    <path fill="#9fcd99" d="M177 146 Q168 168 143 186 Q123 206 96 202
+      Q67 198 43 180 Q56 213 89 225 Q115 233 143 230
+      L140 248 Q134 258 146 260 L169 260 Q180 258 174 252
+      L161 246 L174 218 Q185 224 198 220 L200 248
+      Q197 259 210 260 L233 260 Q243 256 235 251 L219 246
+      L219 201 Q219 180 231 164 L256 164 Q272 167 280 154
+      Q286 146 283 130 Q286 119 274 113 L246 104
+      Q223 88 200 98 Q176 107 178 135Z"/>
+    <path fill="#c4dfb0" stroke="none" d="M183 160 Q186 181 174 205
+      Q170 215 163 228 L174 218 Q185 224 198 220 L200 247
+      L218 246 L218 202 Q218 179 231 164Z"/>
+    <path fill="none" stroke="#6e9b72" stroke-width="2"
+      d="M66 203 Q100 223 134 216 M181 113 Q178 127 181 136"/>
+
+    <path fill="#fffdf4" stroke-width="2.5" d="M223 108 Q229 102 236 107
+      Q242 111 238 119 Q234 125 227 121 Q220 117 223 108Z"/>
+    <ellipse fill="#292c29" stroke="none" cx="234" cy="111" rx="2.7" ry="4"/>
+    <path fill="none" stroke-width="2" d="M225 100 Q232 96 239 101"/>
+    <circle fill="#292c29" stroke="none" cx="271" cy="126" r="2"/>
+    <path fill="none" stroke-width="2.5" d="M250 144 Q267 147 282 136"/>
+    <path fill="#fffdf4" stroke-width="1.5" d="M260 145 L265 152 L268 144"/>
+
+    <path fill="none" d="M212 175 Q220 187 234 179
+      M234 179 L244 181 M234 179 L240 174 M234 179 L240 187"/>
+    <path fill="none" stroke-width="2"
+      d="M146 254 L145 259 M154 254 L154 259 M208 254 L208 259 M217 254 L217 259"/>
+    <path fill="none" stroke="#6e9b72" stroke-width="2"
+      d="M143 191 L147 194 M150 181 L154 184 M158 173 L162 176"/>
+
+    <path fill="#fff8e8" stroke-width="1.8" d="M146 195 L208 196
+      Q213 196 213 202 L213 214 Q212 219 207 219 L146 218
+      Q140 218 140 213 L141 201 Q141 195 146 195Z"/>
+    <path fill="none" stroke-width="1.8" d="M154 202 Q146 198 146 207 Q146 215 154 212
+      M161 200 Q156 200 156 207 Q156 214 161 214 Q166 214 166 207 Q166 200 161 200Z
+      M170 214 L170 200 L174 200 Q183 201 175 207 Q184 210 176 214Z
+      M189 200 Q184 200 184 207 Q184 214 189 214 Q194 214 194 207 Q194 200 189 200Z
+      M198 200 L198 214 L206 214"/>
+  </g>
+
+  <text x="220" y="285" text-anchor="middle" fill="#292c29"
+        font-family="'Geist Mono', monospace" font-size="18">Extinction level refactoring.</text>
+</svg>
